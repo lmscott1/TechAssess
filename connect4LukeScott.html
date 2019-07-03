@@ -1,0 +1,213 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Connect Four</title>
+		<script type="text/javascript">
+			var gameactive = false;
+			var activeplayer = 0;
+			var grid = [];
+			var playercolour = []; 
+			playercolour[1] = "You are RED";  
+			playercolour[2] = "You are YELLOW"; 
+            
+            var p1score = 0;
+            var p2score = 0;
+			
+			function beginGame() {
+				if (gameactive == true) return false; 
+				gameactive = true;
+				for (row=0; row<=5; row++) {
+					grid[row] = [];
+					for (col=0; col<=6; col++) {
+						grid[row][col] = 0;
+					}	
+				}		
+				
+				drawGrid(); // draws grid with this function.				
+				activeplayer = 1; //set the first player as their turn
+				setUpTurn(); //get ready for the player's turn
+			}
+			
+			
+			function drawGrid() {
+				checkForWin(); //runs function and checks if oplayer has won by multiple combinations (see function)
+				for (col = 0; col<=6; col++) {
+					for (row=0; row<=5; row++) {
+						//sets table to create grid for connect 4.
+						document.getElementById('square_'+row+'_'+col).innerHTML ="<span class='counter player"+grid[row][col]+"'> </span>";
+					}	
+				}
+			}
+			
+			function checkForWin() {
+				//check left-to-right
+				//check for player 1 and 2
+				for (i=1; i<=2; i++) {
+					//checking first three rows as winning row cannot start in 4th (java) row
+					for (col = 0; col <=3; col++) {
+						for (row = 0; row <=5; row++) {
+							//checks item in array against players turn
+							if (grid[row][col] == i) {
+								if ((grid[row][col+1] == i) && (grid[row][col+2] == i) && (grid[row][col+3] == i)) {
+									endGame(i); //ends game if combination is correct
+									return true; //boolean value returns and stops game.
+								}
+							}
+						}
+					}
+				}
+				
+				//check top-to-bottom
+				for (i=1; i<=2; i++) {
+					//checks top to bottom on grid
+					for (col = 0; col <=6; col++) {
+						for (row = 0; row <=2; row++) {
+							//checks item in array against player
+							if (grid[row][col] == i) {
+								if ((grid[row+1][col] == i) && (grid[row+2][col] == i) && (grid[row+3][col] == i)) {
+									endGame(i); //ends game if combination is correct
+									return true; //boolean value returns and stops game.
+								}
+							}
+						}
+					}
+				}
+				
+				//check diaganol connect
+				for (i=1; i<=2; i++) {
+					for (col = 0; col <=3; col++) {
+						for (row = 0; row <=2; row++) {
+							//checks item in array against player
+							if (grid[row][col] == i) {
+								if ((grid[row+1][col+1] == i) && (grid[row+2][col+2] == i) && (grid[row+3][col+3] == i)) {
+									endGame(i); //ends game if combination is correct
+									return true; //boolean value returns and stops game.
+								}
+							}
+						}
+					}
+				}
+								
+				//check diagnol up
+				for (i=1; i<=2; i++) {
+					for (col = 0; col <=3; col++) {
+						for (row = 3; row <=5; row++) {
+							//checks against player
+							if (grid[row][col] == i) {
+								if ((grid[row-1][col+1] == i) && (grid[row-2][col+2] == i) && (grid[row-3][col+3] == i)) {
+									endGame(i); //ends game if combination is correct
+									return true; //boolean value returns and stops game.
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			function endGame(winningPlayer) {
+				gameactive = false; //Endgame function running so changes active game to false.
+                if(winningPlayer == 1){
+                    p1score = p1score + 1;
+                    console.log(p1score);
+                    //logs in console p1score and also writes it to scoreboard at bottom of the page (active session only)
+                    
+                }
+                if(winningPlayer == 2){
+                    p2score = p2score + 1;
+                    console.log(p2score);
+                    //logs in console p2score and also writes it to scoreboard at bottom of the page (active session only)
+                }
+				document.getElementById('game_text').innerHTML = "Winner: Player " + winningPlayer + " you have won! Congratulations! Press START to play again?"; //displays text to reflect outcome of the game
+                document.getElementById('p1score').innerHTML = p1score;
+                document.getElementById('p2score').innerHTML = p2score;
+			}
+			
+			function setUpTurn() {
+				if (gameactive) { 
+					document.getElementById('game_text').innerHTML = "Current Player: Player " + activeplayer + " <span class='player"+activeplayer+"'>(" + playercolour[activeplayer] + ")</span>";
+                    //shows user who's turn it is and also displays colour of player
+				}
+			}			
+			
+			function drop(col) {
+					//starts looking for available space, starting with bottom (5)
+					for (row=5; row>=0; row--) { //works backwards up table by using -- to reduce value
+						if (grid[row][col] == 0) {
+							grid[row][col] = activeplayer; //sets counter in place depending on player colour
+							drawGrid(); //seamlessly reassembles the grid but filling in approrpiate space.
+							if (activeplayer == 1) {
+								activeplayer = 2;
+							} else {
+								activeplayer = 1;
+							}
+							
+							setUpTurn(); 
+							return true; //stops looking for empty spaces as it will have found one then continues.
+						}
+					}
+			}
+			
+		</script>
+		
+		<link rel="stylesheet" type="text/css" href="global.css"> <!-- Loads in CSS sheet for style of page -->
+	</head>
+    
+    
+    
+    
+    
+	<body onload="beginGame();">
+		<div class="content">
+            <h1>Technical Assessment:<br />Connect 4 Game - Luke Scott</h1>
+            <h2 style="font-style:italic;">Welcome to Hive's... <br />...CONNECT 4 'EXTREME'</h2>
+            <h3>Instructions:</h3>
+		<p>Press START then choose a column to drop a counter into by pressing the number of the column you would like to place your counter in.</p>
+		<button id="begin_game" onclick="beginGame();" style="font-family:'Arial'; font-size:30px">START</button>
+		<div id="grid">
+			<div id="game_text">
+			</div>
+			<table id="game_table">
+				<thead>
+					<tr>
+						<td><button onclick="drop(0);">--1--</button></td>
+						<td><button onclick="drop(1);">--2--</button></td>
+						<td><button onclick="drop(2);">--3--</button></td>
+						<td><button onclick="drop(3);">--4--</button></td>
+						<td><button onclick="drop(4);">--5--</button></td>
+						<td><button onclick="drop(5);">--6--</button></td>
+						<td><button onclick="drop(6);">--7--</button></td>
+                        <!--button clicks corrospond to columns and drop function to find empty space and fill with players colour-->
+                        <!--set up using a table with CSS making it appear as though table is a connect 4 circle grid-->
+					</tr>
+				</thead>
+				<script>
+				for (var row=0; row<=5; row++) {
+					document.writeln("<tr>");	
+					for (var col=0; col<=6; col++) {
+						document.writeln("<td id='square_" + row + "_"+ col +"' class='grid_square'></td>");							
+					}
+					document.writeln("</tr>");	
+				}//creates grid at the start of the process
+				</script>
+			</table>
+            <table id="scores">
+                <thead><h2>Scores</h2></thead>
+                <tr>
+                    <th>Player 1:</th>
+                    <th></th>
+                    <th>Player 2:</th>
+                </tr>
+                <tr></tr>
+                <td id="p1score"></td>
+                <td></td>
+                <td id="p2score"></td>
+                </tr>
+            </table>
+            <br>
+            <!-- Displaying scores in table -->
+            <p>Once the game has finished please press START to go again. This could cause issues with the scores. Thank you.</p>
+			
+		</div>
+        </div>
+	</body>
+</html>
